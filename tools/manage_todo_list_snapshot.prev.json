@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "title": "T1.1 - Python environment setup",
+    "description": "Create venv, populate requirements.txt, and install Python dependencies (quick-start).",
+    "status": "completed"
+  },
+  {
+    "id": 2,
+    "title": "T1.2 - Basic model structure (SimpleClassifier and synthetic data)",
+    "description": "Implement SimpleClassifier, generate synthetic data, and scaffold training loop (T1.2.1-T1.2.3).",
+    "status": "not-started"
+  },
+  {
+    "id": 3,
+    "title": "T2.1 - Maven project initialization",
+    "description": "Create Java/Maven project skeleton and add ONNX Runtime + Spring Boot dependencies.",
+    "status": "not-started"
+  },
+  {
+    "id": 4,
+    "title": "T2.2 - Spring Boot basic structure",
+    "description": "Add main application class, controller, and service packages (T2.2.1-T2.2.3).",
+    "status": "not-started"
+  },
+  {
+    "id": 5,
+    "title": "Sync TODO file",
+    "description": "Run tools/sync_todos.py to regenerate talkingsmoke_TODO.md from this snapshot.",
+    "status": "completed"
+  },
+  {
+    "id": 6,
+    "title": "T1.1.5 - Run Python unit tests",
+    "description": "Run unit tests for Python trainer to validate imports and basic behavior (may require installing dependencies).",
+    "status": "blocked",
+    "note": "Module 'torch' not installed in environment; tests cannot run until dependencies are installed."
+  },
+  {
+    "id": 7,
+    "title": "T1.1.6 - Install Python dependencies",
+    "description": "Install packages from python/requirements.txt into the environment (pip install).",
+    "status": "blocked",
+    "note": "pip failed building 'onnx': missing system dependency 'cmake'. CMake must be installed or onnx removed from requirements."
+  }
+]
