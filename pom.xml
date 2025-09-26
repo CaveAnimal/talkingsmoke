@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.talkingsmoke</groupId>
+    <artifactId>talkingsmoke-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>TalkingSmoke Multi-module Parent</name>
+
+    <modules>
+        <module>java</module>
+        <module>python</module>
+    </modules>
+
+    <properties>
+        <!-- Allow overriding which Python executable to use (e.g. -Dpython.executable=py) -->
+        <python.executable>python</python.executable>
+        <skipPythonTests>false</skipPythonTests>
+        <exec.plugin.version>3.1.0</exec.plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Provide exec plugin version to children if needed -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
+

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.talkingsmoke</groupId>
+        <artifactId>talkingsmoke-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>python</artifactId>
+    <packaging>pom</packaging>
+    <name>TalkingSmoke Python Tests</name>
+
+    <!-- no local properties here to avoid recursive interpolation; parent provides defaults -->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec.plugin.version}</version>
+                <executions>
+                    <!-- Install Python dependencies before running tests -->
+                    <execution>
+                        <id>install-python-deps</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipPythonTests}</skip>
+                            <executable>${python.executable}</executable>
+                            <arguments>
+                                <argument>-m</argument>
+                                <argument>pip</argument>
+                                <argument>install</argument>
+                                <argument>-r</argument>
+                                <argument>${project.basedir}\\requirements.txt</argument>
+                            </arguments>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                        </configuration>
+                    </execution>
+
+                    <!-- Run pytest during the Maven test phase -->
+                    <execution>
+                        <id>run-pytests</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipPythonTests}</skip>
+                            <executable>${python.executable}</executable>
+                            <arguments>
+                                <argument>-m</argument>
+                                <argument>pytest</argument>
+                                <argument>-q</argument>
+                                <argument>--maxfail=1</argument>
+                                <argument>--junitxml=${project.build.directory}\\pytest-results.xml</argument>
+                                <argument>${project.basedir}\\tests</argument>
+                            </arguments>
+                            <!-- Run pytest from the parent project directory so the 'python' package (python/) is importable -->
+                            <workingDirectory>${project.parent.basedir}</workingDirectory>
+                            <environmentVariables>
+                                <!-- Ensure pytest can import the 'python' package by adding the repo root to PYTHONPATH -->
+                                <PYTHONPATH>${project.parent.basedir}</PYTHONPATH>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

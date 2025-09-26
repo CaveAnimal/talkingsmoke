@@ -11,6 +11,17 @@ The assistant will updated the tasks document with the following symbols:
 If the task is deferred for any reason, include the reason in the line beneath that task.
 When asked for a status update on the project, the assistant will provide a list of each category and the percent of total tasks for that category.
 
+## TASKS (Project Roadmap)
+
+- The assistant is responsible for keeping the project's TASKS file (`talkingsmoke_TASKS.md`) accurate and up-to-date. This is the primary human-facing roadmap and must reflect real project status.
+- Use the same status symbols shown above when editing `talkingsmoke_TASKS.md` so the project and assistant use a consistent notation.
+- Update `talkingsmoke_TASKS.md` immediately when making project-level status changes (start a task, mark complete, mark blocked, or defer). If deferring a task include the reason on the line beneath the task.
+- When the assistant's internal TODO changes in a way that affects project-level status, the assistant must update `talkingsmoke_TASKS.md` as well as its internal snapshot (`tools/manage_todo_list_snapshot.json`).
+- After updating the internal snapshot, the assistant must run the provided sync helper to regenerate the assistant-maintained TODO (`talkingsmoke_TODO.md`) by invoking the PowerShell wrapper: `tools/sync_todos.ps1`.
+- Sync cadence: update TASKS immediately on any status change, and also after any burst of edits (≈3–5 tool calls or editing >3 files), before producing a formal status report, and at end-of-session.
+- When asked for a status update, report percent-complete using the TASKS file as the authoritative source; also ensure the assistant TODO and snapshot reflect the same state.
+- Every task step and subtask listed in `talkingsmoke_TASKS.md` must be updated individually as work progresses — not just the top-level task entries. Mark subtasks with the same status symbols and include reasons/notes for deferred or blocked subtasks.
+
 The assistant normally keeps it's own internal TODO list.  Whenever the assistant changes it's own internal TODO list, it will also update the file *_TODO.md using 
 the files found in the tools subfolder by invoking the PowerShell wrapper `tools/sync_todos.ps1`
 The assistant will add or update a timestamp at the bottom of the *_TODO.md with the format:
@@ -75,4 +86,29 @@ These rules reduce quoting/parsing issues and make tool-probing reliable across 
 - Break it down further into smaller steps
 - Update time estimate for future reference
 - Document what made it complex
+
+
+## Code Quality & Testing
+
+- Tests: every feature or bugfix should include unit tests covering the happy path and at least one edge case. Place python tests in `python/tests/` following existing patterns.
+- Test runs: run unit tests locally before opening a PR. The assistant will run the project's test suite after making code changes as a smoke check.
+- Linting/Formatting: follow project style (black/flake8 or equivalent). Run formatters as pre-commit hooks where possible.
+- Coverage: document new behavior in tests; aim to keep or increase coverage for modified modules.
+
+## Security & Secrets
+
+- Never commit secrets or credentials to the repository. Use environment variables or secure vaults for CI secrets.
+- If a secret is accidentally committed, rotate it immediately and create a task describing the incident and remediation steps.
+
+## Data & Model Handling
+
+- Do not commit large model files or training datasets to the repository. Use external storage (S3, Azure Blob, etc.) and store only reproducible export scripts and small examples in `python/models/`.
+- ONNX export: include versioned exporter scripts and a small smoke test that verifies model load and inference using ONNX Runtime.
+
+
+## Communication & Status
+
+- Status updates: when asked, the assistant will summarize progress across the categories (GOALS, PRD, TASKS, LESSONS_LEARNED) and include percent complete per the task symbols in `TASKS`.
+- Retrospectives: as earlier noted, stop work and remind the user for a sprint retrospective at ~20-25% completion milestones.
+
 
