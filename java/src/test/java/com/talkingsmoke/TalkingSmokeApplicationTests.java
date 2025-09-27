@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = TestApplication.class)
 class TalkingSmokeApplicationTests {
 
     @Autowired
