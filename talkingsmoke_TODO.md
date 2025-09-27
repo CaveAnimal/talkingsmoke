@@ -27,3 +27,5 @@ Last synced: 2025-09-25 08:34:23 PM CDT — ran by assistant
 - [ ] Add/confirm `.gitignore` entries for `/java/target/` and common model filenames (e.g. `**/exported_model.onnx`).
 - [ ] Consider Git LFS or external hosting for large model files; document in `MODELS.md` or README.
 - [ ] If required, coordinate a history-rewrite (BFG or git filter-repo) to remove large files from prior commits. This is invasive and should be scheduled.
+
+PR URL (created by assistant): https://github.com/CaveAnimal/talkingsmoke/pull/new/feature/validation-parse-tests-clean-2
