@@ -1,0 +1,13 @@
+# Ignore build output
+/java/target/
+
+# Ignore common exported model filenames
+**/exported_model.onnx
+**/*.onnx
+
+# Ignore IDE files
+.vscode/
+*.iml
+
+# Ignore temporary logs
+*.log

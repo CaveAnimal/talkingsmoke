@@ -151,6 +151,11 @@ Keep status updates short and consistent (prefer single-character markers). When
 - [   ] **T4.1.5** - Write unit tests for ONNXInferenceService *(30 min)*
 - [   ] **T4.1.6** - Write integration tests for REST endpoints *(20 min)*
 
+### Recent progress (2025-09-26)
+
+- [✓] **T4.1.5** - Write unit tests for ONNXInferenceService — added parsing and compatibility unit tests and made helper functions testable.
+- [✓] **T4.1.6** - Write integration tests for REST endpoints — added MockMvc test to verify 400 payload for validation failures and updated controller advice.
+
 ### [   ] T4.2 - Error Handling and Edge Cases (Progress: 0%)
 **Estimated Time: 90 minutes**
 
