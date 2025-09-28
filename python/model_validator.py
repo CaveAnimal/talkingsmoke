@@ -10,6 +10,14 @@ import os
 
 
 def validate_onnx_structure(model_path: str) -> bool:
+    """Load and check the static ONNX model structure.
+
+    Args:
+        model_path: Path to the ONNX model file.
+
+    Returns:
+        True if the model passes onnx.checker, False otherwise.
+    """
     try:
         onnx_model = onnx.load(model_path)
         onnx.checker.check_model(onnx_model)
@@ -21,6 +29,10 @@ def validate_onnx_structure(model_path: str) -> bool:
 
 
 def run_runtime_test(model_path: str) -> bool:
+    """Run a quick inference with ONNX Runtime to validate execution.
+
+    Returns True if inference succeeds, False otherwise.
+    """
     try:
         sess = ort.InferenceSession(model_path, providers=['CPUExecutionProvider'])
         # prepare dummy input

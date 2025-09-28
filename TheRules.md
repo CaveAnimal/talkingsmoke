@@ -71,6 +71,12 @@ Rules for running PowerShell commands (interactive or automated):
 - After installing system-level tools (CMake, Visual Studio workloads), restart the terminal/IDE so the updated PATH is visible to new sessions.
 - When automating PowerShell from another process, prefer small, quoted commands or temporary script files rather than one long semicolon-separated command that expands many variables.
 
+## Use of the developer watchdog
+
+- The project provides a small PowerShell watchdog script at `tools/ensure_not_stuck.ps1` that runs commands with periodic heartbeats and a timeout.
+- Rule: When running non-interactive, potentially long-running commands locally (builds, test suites, exporters, packaging, model training, etc.), the assistant and contributors MUST use `ensure_not_stuck.ps1` as often as practicable. Mark exceptions explicitly in the task notes when a command is intentionally run without the watchdog (for example, when an interactive prompt is required or when launching a detached background service).
+- The assistant will wrap its own long-running invocations with the watchdog by default and document any deliberate exceptions in `talkingsmoke_TASKS.md`.
+
 These rules reduce quoting/parsing issues and make tool-probing reliable across sessions and automation contexts.
 
 
