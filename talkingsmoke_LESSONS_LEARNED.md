@@ -100,3 +100,55 @@ To avoid repeated mistakes when running PowerShell from automation or in long on
 - When automating Powershell commands from another process, prefer invoking small, quoted commands (or use a temporary script file) rather than a very long one-line with many semicolons and unescaped expansions.
 
 These simple rules will reduce typos, quoting/parsing issues, and PATH visibility errors in future runs.
+
+## Lesson: Git history, large binary files, and safe publishing
+
+Date: 2025-09-26
+
+Summary
+-------
+During the recent work to add validation, tests, and improved ONNX handling I ran into failures when trying to push a local branch to the remote repository. The push was rejected by the remote pre-receive hook because the local commit history included large binary artifacts (an ONNX model in `java/src/main/resources/models/...` and the packaged jar under `java/target/`). This blocked publishing the new source and tests for review.
+
+What happened
+-------------
+- I made many helpful local edits and ran tests until green, then committed them on a local feature branch that also (accidentally) included built artifacts and the model file in the commit history.
+- When pushing, GitHub's size checks rejected the push because one file exceeded their 100MB hard limit and another exceeded recommended size thresholds.
+
+Root cause
+-----------
+- Built artifacts and large model files were present in the working tree and were staged/committed. Because they were included in commits, simply deleting them and committing the deletions did not remove the large objects from history — the remote still refused the new push.
+
+What I changed and why it helped
+--------------------------------
+- Implemented focused changes that modify only source, tests, and docs (no binaries).
+- Created a new clean branch based on `origin/main` so the branch's history does not contain the large objects.
+- Committed only the safe files (source, tests, docs) to the new branch and pushed that branch to remote. This avoids rewriting history and is the safest way to publish small, reviewable changes.
+
+Recommendations / Best practices
+--------------------------------
+1. Never commit build outputs or large binary models into the main Git history. Add a `.gitignore` rule to exclude:
+  - `/java/target/`
+  - `**/exported_model.onnx`
+  - Other temporary/build artifacts created during packaging or local experiments.
+
+2. Store large model artifacts outside the Git repository, for example:
+  - Use Git LFS for model files that must live alongside source (remember to track them before committing).
+  - Use a cloud object store (S3, Azure Blob) or a release artifact (GitHub Releases) for large models, and store only the URL or checksum in the repo.
+
+3. To remove large files that already exist in history, use a dedicated history-rewrite tool (BFG Repo-Cleaner or git filter-repo). This is invasive and will change commit hashes, so coordinate with collaborators.
+
+4. When possible prefer the non-destructive approach: create a new branch from the remote default branch and cherry-pick or re-apply the safe changes there, then push that branch and open a PR.
+
+5. For CI / automation, add a small pre-commit hook or CI check that ensures `/java/target` and model files are not accidentally committed.
+
+6. Document where and how models should be published and consumed (e.g., a short `MODELS.md` or README section describing hosting, expected path, and checksum verification).
+
+Action items (short-term)
+------------------------
+- Add `.gitignore` entries for `java/target` and common model filenames.
+- Add an assistant-maintained TODO entry describing the push/cleanup steps and who will perform history rewrite (if needed).
+- Create a short README note about model management and linking to the canonical model hosting location.
+
+Action recorded
+---------------
+- Incident recorded on 2025-09-26. Root cause: large binaries included in local commits. Resolution strategy: publish safe changes on a fresh branch created from `origin/main`, and follow the recommendations above for long-term fixes.
