@@ -152,3 +152,74 @@ Action items (short-term)
 Action recorded
 ---------------
 - Incident recorded on 2025-09-26. Root cause: large binaries included in local commits. Resolution strategy: publish safe changes on a fresh branch created from `origin/main`, and follow the recommendations above for long-term fixes.
+
+## Lesson: PowerShell parser error when using shell-style `||` operator
+
+Date: 2025-09-27
+
+Summary
+-------
+During an automated attempt to create a branch and open a GitHub PR, a one-line PowerShell command used the POSIX-style `||` operator for a fallback action (for example: `gh --version 2>$null || Write-Output 'no-remote-branch'`). On Windows PowerShell 5.1 this produced a parser error:
+
+```
+The token '||' is not a valid statement separator in this version.
+```
+
+What happened (reproduction)
+----------------------------
+- Running a one-liner like this in Windows PowerShell 5.1 triggers the parser error:
+
+  ```powershell
+  gh --version 2>$null || Write-Output 'no-remote-branch'
+  ```
+
+  The same line works in POSIX shells (bash) and in PowerShell 7+ where `||` and `&&` are supported as logical operators.
+
+Root cause
+----------
+- The command mixed shell idioms. `||` is a Bash/CMD conditional operator (and supported in PowerShell 7+), but it is not valid syntax in Windows PowerShell 5.1, which is the user's default shell in this environment. The PowerShell parser rejected the token, causing the entire compound command to fail before any of the intended checks or fallbacks could run.
+
+Why this caused the script to "spin"
+-------------------------------------
+- The automation wrapped multiple checks and fallbacks in a single line. Because the parser failed at syntax level, none of the conditional logic executed and the script aborted earlier than the outer automation expected. This left the assistant waiting for a result that never arrived.
+
+Safe alternatives and recommended fixes
+--------------------------------------
+1. Prefer PowerShell-native checks (portable across PowerShell versions):
+
+   ```powershell
+   if (Get-Command gh -ErrorAction SilentlyContinue) {
+     gh --version
+   } else {
+     Write-Output 'gh-not-found'
+   }
+   ```
+
+2. Use `Try/Catch` to handle non-zero exit behaviour without relying on `||`:
+
+   ```powershell
+   try {
+     gh --version | Out-Null
+   } catch {
+     Write-Output 'gh-not-found'
+   }
+   ```
+
+3. Use `cmd.exe` if you intentionally want POSIX-style `||` behavior inside a Windows session (explicit, but less idiomatic):
+
+   ```powershell
+   cmd /c "gh --version || echo gh-not-found"
+   ```
+
+4. Upgrade the environment to PowerShell 7+ if you prefer short `&&`/`||` chains and are able to rely on that runtime. Be explicit about which shell is being used when running automation.
+
+5. Test one-liners interactively in the target shell before running them as an automated script. If you must pass a compound command into a wrapper, prefer a small script file and execute that to avoid quoting/parsing pitfalls.
+
+Action taken
+------------
+- Added this analysis and the recommended PowerShell-safe snippets to `talkingsmoke_LESSONS_LEARNED.md` so future automation uses PowerShell-native patterns.
+
+Recommended follow-ups
+----------------------
+- Update any automation snippets that currently use `||`/`&&` so they use PowerShell-native checks or run under PowerShell 7.
+- Add a short comment in the automation wrapper to assert the shell version or to explicitly invoke `pwsh` when PowerShell 7 semantics are required.
